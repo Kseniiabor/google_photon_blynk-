@@ -1,0 +1,97 @@
+// This #include statement was automatically added by the Particle IDE.
+#include <blynk.h>
+
+// This #include statement was automatically added by the Particle IDE.
+#include <InternetButton.h>
+
+#include <google-maps-device-locator.h>
+InternetButton b = InternetButton();
+
+GoogleMapsDeviceLocator locator;
+#define BLYNK_PRINT Serial  // Set serial output for debug prints
+//#define BLYNK_DEBUG       // Uncomment this to see detailed prints
+
+//#include <blynk.h>
+
+// You should get Auth Token in the Blynk App.
+// Go to the Project Settings (nut icon).
+char auth[] = "7905e78a683a480381d376dd5a21cfdd";
+
+void setup() {
+  b.begin();
+    
+  Serial.begin(9600);
+  // Scan for visible networks and publish to the cloud every 30 seconds
+  // Pass the returned location to be handled by the locationCallback() method
+  locator.withSubscribe(locationCallback).withLocatePeriodic(30);
+   b.setBrightness(50);
+    Serial.begin(9600);
+    delay(5000); // Allow board to settle
+
+    Blynk.begin(auth);
+}
+
+// Attach a Button widget (mode: Push) to the Virtual pin 1 - and send sweet tweets!
+BLYNK_WRITE(V1) {
+    if (param.asInt() == 1) { // On button down...
+        // Tweeting!
+        // Note:
+        //   We allow 1 tweet per minute for now.
+        //   Twitter doesn't allow identical subsequent messages.
+        Blynk.tweet("My Particle project is tweeting using @blynk_app and it’s awesome!\n @Particle #IoT #blynk");
+
+        // Pushing notification to the app!
+        // Note:
+        //   We allow 1 notification per minute for now.
+        Blynk.notify("You pressed the button and I know it ;)");
+    }
+}
+
+void locationCallback(float lat, float lon, float accuracy) {
+  // Handle the returned location data for the device. This method is passed three arguments:
+  // - Latitude
+  // - Longitude
+  // - Accuracy of estimated location (in meters)
+}
+
+// Attach a ZeRGBa widget (mode: Merge) to the Virtual pin 2 - and control the built-in RGB led!
+BLYNK_WRITE(V2) {
+    int r = param[0].asInt();
+    int g = param[1].asInt();
+    int b = param[2].asInt();
+    if (r > 0 || g > 0 || b > 0) {
+        RGB.control(true);
+        RGB.color(r, g, b);
+    } else {
+        RGB.control(false);
+    }
+}
+
+void loop() {
+      
+      
+        if(b.buttonOn(2)){
+        b.ledOn(3, 255, 255, 255);
+        GoogleMapsDeviceLocator();////////////////////!!!!!!!!!!!!!!!!!!!!!!!!
+    }
+    // And if the button's not on, then the LED should be off
+    else {
+        b.ledOff(3);
+    }
+
+    // The format here is (LED, red, green, blue), so we're making a color with no red or green, but ALL the blue
+    // You should know that the range of brightness here is 0-255, so 0 is off and 255 is the most possible.
+    // After you use this code, try making the LED white- all the red, green, and blue.
+
+    // Since the LED is now on, let's have it stay that way for one second
+    // Delay pauses the code for the amount of time given, in milliseconds- so 1000 millis is one whole second
+  
+
+    // And to blink the LED, we'll need to turn it back off and then pause for another second
+    
+    
+  locator.loop();
+   Blynk.run();
+}
+            
+
